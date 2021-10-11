@@ -127,6 +127,18 @@ class CJICS
             logs("Agent #$perso_id : Table: $table, src: $src", "ICS", $CSRFToken);
         }
 
+        // Get available absences reasons
+        $reasons = array();
+        $last_reason = 0;
+        $db = new db();
+        $db->select('select_abs');
+        if ($db->result) {
+            foreach ($db->result as $elem) {
+                $reasons[] = $elem['valeur'];
+                $last_reason = $elem['rang'] > $last_reason ? $elem['rang'] : $last_reason;
+            }
+        }
+
         // Parse le fichier ICS, le tableau $events contient les événements du fichier ICS
         $ical   = new ICal($src, "MO");
         $events = $ical->events();
@@ -329,18 +341,6 @@ class CJICS
                 $motif = $elem['CATEGORIES'] ?? "Autre";
                 $motif_autre = empty($elem['CATEGORIES']) ? "Catégorie non renseignée dans l'agenda" : '';
 
-                // Get available absences reasons
-                $reasons = array();
-                $last_reason = 0;
-                $db_reasons = new db();
-                $db_reasons->select('select_abs');
-                if ($db_reasons->result) {
-                    foreach ($db_reasons->result as $reason) {
-                        $reasons[] = $reason['valeur'];
-                        $last_reason = $reason['rang'] > $last_reason ? $reason['rang'] : $last_reason;
-                    }
-                }
-
                 if (!in_array($motif, $reasons)) {
                     $db_reasons = new db();
                     $db_reasons->CSRFToken = $CSRFToken;
@@ -351,6 +351,9 @@ class CJICS
                         'notification_workflow' => 'A',
                         'teleworking' => 0,
                         ]);
+
+                    $reasons[] = $motif;
+                    $last_reason++;
                 }
 
                 // Si SUMMARY est enregistré dans le champ motif, on ne le met pas dans le champ description
