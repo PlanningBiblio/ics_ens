@@ -326,8 +326,8 @@ class CJICS
                 // Mais nous pouvons mettre l'information présente dans le champ SUMMARY de l'événements. Dans ce cas, il faut préciser $this->pattern = "[SUMMARY]"; (exemple d'utilisation : enregistrement d'absences récurrentes dans Planning Biblio)
 
                 // ON ne recupere pas le motif - on garde celui de webmail - ENS Nicolas Schmitz <nicolas.schmitz@ens-lyon.fr> 15/03/2019
-                $motif = $elem['CATEGORIES'] ?? "unknown category";
-                $motif_autre = '';
+                $motif = $elem['CATEGORIES'] ?? "Autre";
+                $motif_autre = empty($elem['CATEGORIES']) ? "Catégorie non renseignée dans l'agenda" : '';
 
                 // Get available absences reasons
                 $reasons = array();
